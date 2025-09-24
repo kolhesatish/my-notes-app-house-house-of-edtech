@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import { Note } from "@/models/Note";
-import { headers } from "next/headers";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/jwt";
 import mongoose from "mongoose";
+
+function getUserIdFromCookie(): string | null {
+  const token = cookies().get("token")?.value;
+  const payload = token ? verifyToken(token) : null;
+  return payload?.sub || null;
+}
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
   try {
-    const h = headers();
-    const userId = h.get("x-user-id");
+    const userId = getUserIdFromCookie();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if (!mongoose.isValidObjectId(params.id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
     await dbConnect();
@@ -21,8 +27,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   try {
-    const h = headers();
-    const userId = h.get("x-user-id");
+    const userId = getUserIdFromCookie();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if (!mongoose.isValidObjectId(params.id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
@@ -42,8 +47,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
   try {
-    const h = headers();
-    const userId = h.get("x-user-id");
+    const userId = getUserIdFromCookie();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if (!mongoose.isValidObjectId(params.id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
     await dbConnect();
