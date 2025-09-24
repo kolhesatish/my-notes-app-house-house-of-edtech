@@ -17,8 +17,9 @@ async function getNote(id: string) {
   return data.note as any;
 }
 
-export default async function NotePage({ params }: { params: { id: string } }) {
-  const note = await getNote(params.id);
+export default async function NotePage(props: { params: Promise<{ id: string }> }) {
+   const { id } = await props.params;
+  const note = await getNote(id);
   if (!note) {
     return (
       <div>

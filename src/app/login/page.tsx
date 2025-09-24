@@ -1,43 +1,71 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const params = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const searchParams = useSearchParams();
   const [error, setError] = useState("");
-  const next = params.get("next") || "/dashboard";
 
-  async function submit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    if (res.ok) {
-      router.push(next);
-    } else {
-      const data = await res.json();
-      setError(data.error || "Login failed");
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: formData.get("email"),
+          password: formData.get("password"),
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Login failed");
+      }
+
+      // Redirect to the originally requested page or dashboard
+      const nextUrl = searchParams.get("next") || "/dashboard";
+      router.push(nextUrl);
+      router.refresh();
+    } catch (err) {
+      setError("Invalid credentials");
     }
-  }
+  };
 
   return (
     <div className="max-w-md mx-auto">
       <h1 className="text-xl font-semibold mb-4">Log In</h1>
-      <form onSubmit={submit} className="flex flex-col gap-3">
-        {error && <div className="text-red-600 text-sm">{error}</div>}
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="border rounded-md px-3 py-2 text-sm" />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="border rounded-md px-3 py-2 text-sm" />
-        <button className="border rounded-md px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10">Log In</button>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          className="border rounded-md px-3 py-2 text-sm"
+          required
+        />
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          className="border rounded-md px-3 py-2 text-sm"
+          required
+        />
+        <button
+          type="submit"
+          className="border rounded-md px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10"
+        >
+          Log In
+        </button>
       </form>
-      <p className="text-sm mt-3">No account? <Link className="underline" href="/signup">Sign up</Link></p>
+      <p className="text-sm mt-3">
+        No account? <a className="underline" href="/signup">Sign up</a>
+      </p>
     </div>
   );
 }

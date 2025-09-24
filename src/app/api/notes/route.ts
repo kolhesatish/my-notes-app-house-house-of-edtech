@@ -4,15 +4,16 @@ import { Note } from "@/models/Note";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
 
-function getUserIdFromCookie(): string | null {
-  const token = cookies().get("token")?.value;
+async function getUserIdFromCookie(): Promise<string | null> {
+  const cookieStore = await cookies(); 
+  const token = cookieStore.get("token")?.value;
   const payload = token ? verifyToken(token) : null;
   return payload?.sub || null;
 }
 
 export async function GET(req: Request) {
   try {
-    const userId = getUserIdFromCookie();
+    const userId = await getUserIdFromCookie(); 
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     await dbConnect();
@@ -38,15 +39,22 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const userId = getUserIdFromCookie();
+    const userId = await getUserIdFromCookie(); 
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { title, content, tags } = await req.json();
     if (!title || !content) {
       return NextResponse.json({ error: "Title and content are required" }, { status: 400 });
     }
+
     await dbConnect();
-    const note = await Note.create({ title, content, tags: Array.isArray(tags) ? tags : [], userId });
+    const note = await Note.create({
+      title,
+      content,
+      tags: Array.isArray(tags) ? tags : [],
+      userId,
+    });
+
     return NextResponse.json({ note });
   } catch (e) {
     return NextResponse.json({ error: "Failed to create note" }, { status: 500 });

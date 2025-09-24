@@ -1,22 +1,36 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
+import { verifyAuth } from './lib/auth';
 
-const API_PROTECTED = [/^\/api\/notes(\/.*)?$/, /^\/api\/ai\/(summarize|tags)(\/.*)?$/];
-const PAGE_PROTECTED = [/^\/dashboard(\/.*)?$/, /^\/notes(\/.*)?$/];
+export async function middleware(request: NextRequest) {
+  const token = request.cookies.get('token');
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-  const token = req.cookies.get("token")?.value;
-  const isApi = API_PROTECTED.some((re) => re.test(pathname));
-  const isProtectedPage = PAGE_PROTECTED.some((re) => re.test(pathname));
-
-  if (!token && (isApi || isProtectedPage)) {
-    if (isApi) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (request.nextUrl.pathname.startsWith('/notes')) {
+    if (!token) {
+      const url = new URL('/login', request.url);
+      url.searchParams.set('next', request.nextUrl.pathname);
+      return NextResponse.redirect(url);
     }
-    const url = req.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+
+    try {
+      const verifiedToken = await verifyAuth(token.value);
+      if (!verifiedToken) {
+        throw new Error('Invalid token');
+      }
+
+      // Add user info to headers for use in API routes
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set('x-user-id', verifiedToken.userId as string);
+
+      return NextResponse.next({
+        headers: requestHeaders,
+      });
+    } catch (error) {
+      // Token verification failed
+      const url = new URL('/login', request.url);
+      url.searchParams.set('next', request.nextUrl.pathname);
+      return NextResponse.redirect(url);
+    }
   }
 
   return NextResponse.next();
@@ -24,9 +38,7 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    "/notes/:path*",
-    "/api/notes/:path*",
-    "/api/ai/:path*",
-  ],
-};
+    '/notes/:path*',
+    '/api/notes/:path*',
+  ]
+}
