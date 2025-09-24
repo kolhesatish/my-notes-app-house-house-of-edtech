@@ -1,5 +1,4 @@
 import { NextResponse, NextRequest } from "next/server";
-import { verifyToken } from "@/lib/jwt";
 
 const API_PROTECTED = [/^\/api\/notes(\/.*)?$/, /^\/api\/ai\/(summarize|tags)(\/.*)?$/];
 const PAGE_PROTECTED = [/^\/dashboard(\/.*)?$/, /^\/notes(\/.*)?$/];
@@ -7,12 +6,10 @@ const PAGE_PROTECTED = [/^\/dashboard(\/.*)?$/, /^\/notes(\/.*)?$/];
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get("token")?.value;
-  const verified = token ? verifyToken(token) : null;
-
   const isApi = API_PROTECTED.some((re) => re.test(pathname));
   const isProtectedPage = PAGE_PROTECTED.some((re) => re.test(pathname));
 
-  if (!verified && (isApi || isProtectedPage)) {
+  if (!token && (isApi || isProtectedPage)) {
     if (isApi) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -22,13 +19,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const requestHeaders = new Headers(req.headers);
-  if (verified?.sub) {
-    requestHeaders.set("x-user-id", verified.sub);
-    if (verified.email) requestHeaders.set("x-user-email", verified.email);
-  }
-
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  return NextResponse.next();
 }
 
 export const config = {
