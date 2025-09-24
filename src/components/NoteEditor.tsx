@@ -95,8 +95,8 @@ export default function NoteEditor({ initialTitle = "", initialContent = "", ini
           </Dialog.Root>
         )}
         <div className="mx-2" />
-        <button disabled={loading} onClick={summarize} className="border rounded-md px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg.white/10">Summarize with AI</button>
-        <button disabled={loading} onClick={generateTags} className="border rounded-md px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg.white/10">Generate Tags</button>
+        <button disabled={loading} onClick={summarize} className="border rounded-md px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10">Summarize with AI</button>
+        <button disabled={loading} onClick={generateTags} className="border rounded-md px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10">Generate Tags</button>
       </div>
     </div>
   );
