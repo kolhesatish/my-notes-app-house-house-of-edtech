@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import { Note } from "@/models/Note";
-import { headers } from "next/headers";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/jwt";
+
+function getUserIdFromCookie(): string | null {
+  const token = cookies().get("token")?.value;
+  const payload = token ? verifyToken(token) : null;
+  return payload?.sub || null;
+}
 
 export async function GET(req: Request) {
   try {
-    const h = headers();
-    const userId = h.get("x-user-id");
+    const userId = getUserIdFromCookie();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     await dbConnect();
@@ -32,8 +38,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const h = headers();
-    const userId = h.get("x-user-id");
+    const userId = getUserIdFromCookie();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { title, content, tags } = await req.json();
