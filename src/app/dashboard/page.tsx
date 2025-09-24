@@ -1,20 +1,29 @@
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
+import { headers } from "next/headers";
+
+async function getBaseUrl() {
+  const h = await headers();
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  return `${proto}://${host}`;
+}
 
 async function getNotes(q?: string | null, tag?: string | null) {
   const sp = new URLSearchParams();
   if (q) sp.set("q", q);
   if (tag) sp.set("tag", tag);
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/notes?${sp.toString()}`, {
-    cache: "no-store",
-  });
+  const qs = sp.toString();
+  const url = `${await getBaseUrl()}/api/notes${qs ? `?${qs}` : ""}`;
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) return [] as any[];
   const data = await res.json();
   return data.notes as any[];
 }
 
-export default async function Dashboard({ searchParams }: { searchParams: { q?: string; tag?: string } }) {
-  const notes = await getNotes(searchParams.q, searchParams.tag);
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ q?: string; tag?: string }> }) {
+  const sp = await searchParams;
+  const notes = await getNotes(sp?.q ?? null, sp?.tag ?? null);
 
   return (
     <div className="flex flex-col gap-4">
