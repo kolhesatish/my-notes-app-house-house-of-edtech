@@ -3,8 +3,9 @@ import Link from "next/link";
 import { verifyToken } from "@/lib/jwt";
 import { redirect } from "next/navigation";
 
-export default function Home() {
-  const token = cookies().get("token")?.value;
+export default async function Home() {
+  const store = await cookies();
+  const token = store.get("token")?.value;
   const payload = token ? verifyToken(token) : null;
   if (payload) redirect("/dashboard");
   return (

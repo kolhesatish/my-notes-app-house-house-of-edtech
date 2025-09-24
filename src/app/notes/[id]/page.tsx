@@ -1,8 +1,17 @@
 import Link from "next/link";
 import EditableNoteClient from "@/components/EditableNoteClient";
+import { headers } from "next/headers";
+
+async function getBaseUrl() {
+  const h = await headers();
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  return `${proto}://${host}`;
+}
 
 async function getNote(id: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/notes/${id}`, { cache: "no-store" });
+  const url = `${await getBaseUrl()}/api/notes/${id}`;
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) return null;
   const data = await res.json();
   return data.note as any;
