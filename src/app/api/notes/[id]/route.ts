@@ -10,7 +10,6 @@ function getUserIdFromCookie(): string | null {
   const payload = token ? verifyToken(token) : null;
   return payload?.sub || null;
 }
-
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
   try {
     const userId = getUserIdFromCookie();
