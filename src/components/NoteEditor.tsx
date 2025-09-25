@@ -56,8 +56,16 @@ export default function NoteEditor({ initialTitle = "", initialContent = "", ini
       });
       const data: unknown = await res.json();
 
-      const hasTagsArray = (x: unknown): x is { tags: string[] } => typeof x === 'object' && x !== null && Array.isArray((x as any).tags);
-      const hasTagsString = (x: unknown): x is { tags: string } => typeof x === 'object' && x !== null && typeof (x as any).tags === 'string';
+      const hasTagsArray = (x: unknown): x is { tags: string[] } =>
+        typeof x === 'object' &&
+        x !== null &&
+        'tags' in x &&
+        Array.isArray((x as { tags?: unknown }).tags);
+      const hasTagsString = (x: unknown): x is { tags: string } =>
+        typeof x === 'object' &&
+        x !== null &&
+        'tags' in x &&
+        typeof (x as { tags?: unknown }).tags === 'string';
 
       let newTags: string[] = [];
 
