@@ -1,9 +1,18 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
@@ -28,7 +37,6 @@ export default function LoginPage() {
         throw new Error("Login failed");
       }
 
-      // Redirect to the originally requested page or dashboard
       const nextUrl = searchParams.get("next") || "/dashboard";
       router.push(nextUrl);
       router.refresh();
