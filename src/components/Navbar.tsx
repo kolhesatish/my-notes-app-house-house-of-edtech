@@ -8,11 +8,29 @@ import { useEffect, useState } from "react";
 export default function Navbar() {
   const router = useRouter();
   const [theme, setTheme] = useState<string>("system");
+  const [isAuthed, setIsAuthed] = useState<null | boolean>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("theme") || "system";
     setTheme(saved);
     applyTheme(saved);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    async function checkAuth() {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        const data = await res.json();
+        if (active) setIsAuthed(!!data?.authenticated);
+      } catch {
+        if (active) setIsAuthed(false);
+      }
+    }
+    checkAuth();
+    return () => {
+      active = false;
+    };
   }, []);
 
   function applyTheme(t: string) {
@@ -42,22 +60,30 @@ export default function Navbar() {
           <button onClick={toggleTheme} className="rounded-md border px-3 py-1 text-sm hover:bg-black/5 dark:hover:bg-white/10 transition">
             {theme === "dark" ? "Light" : "Dark"}
           </button>
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <button className="rounded-md border px-3 py-1 text-sm hover:bg-black/5 dark:hover:bg-white/10 transition">Account</button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-              <DropdownMenu.Content className="min-w-40 bg-background border rounded-md p-1 shadow-xl">
-                <DropdownMenu.Item asChild>
-                  <Link href="/dashboard" className="block px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/10">Dashboard</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Separator className="h-px bg-black/10 dark:bg-white/10 my-1" />
-                <DropdownMenu.Item asChild>
-                  <button onClick={handleLogout} className="w-full text-left px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/10">Logout</button>
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-          </DropdownMenu.Root>
+
+          {isAuthed === null ? null : isAuthed ? (
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button className="rounded-md border px-3 py-1 text-sm hover:bg-black/5 dark:hover:bg-white/10 transition">Account</button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content className="min-w-40 bg-background border rounded-md p-1 shadow-xl">
+                  <DropdownMenu.Item asChild>
+                    <Link href="/dashboard" className="block px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/10">Dashboard</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator className="h-px bg-black/10 dark:bg-white/10 my-1" />
+                  <DropdownMenu.Item asChild>
+                    <button onClick={handleLogout} className="w-full text-left px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/10">Logout</button>
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link href="/login" className="rounded-md border px-3 py-1 text-sm hover:bg-black/5 dark:hover:bg-white/10 transition">Log In</Link>
+              <Link href="/signup" className="rounded-md border px-3 py-1 text-sm hover:bg-black/5 dark:hover:bg-white/10 transition">Sign Up</Link>
+            </div>
+          )}
         </div>
       </div>
     </header>
