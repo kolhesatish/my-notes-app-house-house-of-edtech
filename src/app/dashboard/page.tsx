@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -9,6 +9,14 @@ import SearchBar from "@/components/SearchBar";
 type Note = { _id: string; title: string; content: string; tags?: string[] };
 
 export default function Dashboard() {
+  return (
+    <Suspense fallback={<div className="p-4">Loading…</div>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
   const searchParams = useSearchParams();
   const [notes, setNotes] = useState<Note[]>([]);
   const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
@@ -91,7 +99,6 @@ export default function Dashboard() {
       setDeleteNote(null);
     } catch (err: unknown) {
       console.error("Error deleting note:", err);
-      // You might want to show an error toast here
     }
   };
 
