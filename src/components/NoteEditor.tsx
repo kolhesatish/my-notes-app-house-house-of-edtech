@@ -55,8 +55,8 @@ export default function NoteEditor({ initialTitle = "", initialContent = "", ini
         headers: { "Content-Type": "application/json" }, 
         body: JSON.stringify({ content }) 
       });
-      const data: any = await res.json();
-      
+      const data: unknown = await res.json();
+
       let newTags: string[] = [];
       
       // Handle different response formats
@@ -255,7 +255,7 @@ export default function NoteEditor({ initialTitle = "", initialContent = "", ini
             AI Summary Generated
           </Dialog.Title>
           <Dialog.Description className="text-sm text-muted">
-            Here's your intelligent summary
+            Here&apos;s your intelligent summary
           </Dialog.Description>
         </div>
       </div>

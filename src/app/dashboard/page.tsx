@@ -30,9 +30,10 @@ export default function Dashboard() {
         const data = await res.json();
         if (!mounted) return;
         setNotes(data.notes || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!mounted) return;
-        setError(err.message || "Failed to load notes");
+        const message = err instanceof Error ? err.message : "Failed to load notes";
+        setError(message);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -88,7 +89,7 @@ export default function Dashboard() {
       setNotes(prev => prev.filter(note => note._id !== noteId));
       setFilteredNotes(prev => prev.filter(note => note._id !== noteId));
       setDeleteNote(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error deleting note:", err);
       // You might want to show an error toast here
     }
@@ -239,7 +240,7 @@ export default function Dashboard() {
           <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 card w-[90vw] max-w-md" style={{backgroundColor: 'var(--background)', borderColor: 'var(--border-color)'}}>
             <Dialog.Title className="font-medium mb-2" style={{color: 'var(--foreground)'}}>Delete note?</Dialog.Title>
             <Dialog.Description className="text-sm mb-4 text-muted">
-              Are you sure you want to delete "{deleteNote?.title}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{deleteNote?.title}&quot;? This action cannot be undone.
             </Dialog.Description>
             <div className="flex justify-end gap-2">
               <Dialog.Close asChild>

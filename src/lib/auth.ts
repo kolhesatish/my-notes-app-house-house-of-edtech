@@ -7,7 +7,7 @@ export async function verifyAuth(token: string): Promise<JWTPayload> {
       new TextEncoder().encode(process.env.JWT_SECRET)
     );
     return verified.payload;
-  } catch (err) {
+  } catch {
     throw new Error('Invalid token');
   }
 }

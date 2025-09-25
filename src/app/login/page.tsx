@@ -32,7 +32,7 @@ export default function LoginPage() {
       const nextUrl = searchParams.get("next") || "/dashboard";
       router.push(nextUrl);
       router.refresh();
-    } catch (err) {
+    } catch {
       setError("Invalid credentials");
     }
   };

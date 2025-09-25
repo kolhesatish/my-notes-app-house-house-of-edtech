@@ -2,6 +2,8 @@ import Link from "next/link";
 import EditableNoteClient from "@/components/EditableNoteClient";
 import { headers } from "next/headers";
 
+type Note = { _id: string; title: string; content: string; tags?: string[] };
+
 /**
  * Minimal, structural header-like type we can use safely in TS.
  * We don't rely on ReadonlyHeaders (which may not be defined in your TS lib).
@@ -9,9 +11,13 @@ import { headers } from "next/headers";
 type SimpleHeaders = { get(name: string): string | null };
 
 /** Normalize headers() result (handles both sync and Promise cases) */
+function hasGetHeader(x: unknown): x is SimpleHeaders {
+  return typeof x === "object" && x !== null && "get" in x && typeof (x as { get?: unknown }).get === "function";
+}
+
 async function getHeaders(): Promise<SimpleHeaders> {
   const maybe = headers() as unknown;
-  if (maybe && typeof (maybe as any).get === "function") {
+  if (hasGetHeader(maybe)) {
     return maybe as SimpleHeaders;
   }
   // maybe is a Promise<SimpleHeaders>
@@ -25,7 +31,7 @@ async function getBaseUrl() {
   return `${proto}://${host}`;
 }
 
-async function getNote(id: string) {
+async function getNote(id: string): Promise<Note | null> {
   const url = `${await getBaseUrl()}/api/notes/${id}`;
   const cookieHeader = (await getHeaders()).get("cookie") ?? "";
 
@@ -38,7 +44,7 @@ async function getNote(id: string) {
 
   if (!res.ok) return null;
   const data = await res.json();
-  return data.note as any;
+  return data.note as Note;
 }
 
 export default async function NotePage({ params }: { params: { id: string } }) {
