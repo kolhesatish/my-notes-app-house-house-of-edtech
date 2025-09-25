@@ -19,7 +19,14 @@ const NoteSchema = new Schema<INote>(
   { timestamps: true }
 );
 
-NoteSchema.index({ title: "text", content: "text", tags: 1 });
+// Create text index only on title and content (NOT on tags array)
+NoteSchema.index({ title: "text", content: "text" });
+
+// Create separate index for tags array searching
+NoteSchema.index({ tags: 1 });
+
+// Optional: Create compound index for user-specific searches
+NoteSchema.index({ userId: 1, createdAt: -1 });
 
 export const Note: Model<INote> =
   mongoose.models.Note || mongoose.model<INote>("Note", NoteSchema);
