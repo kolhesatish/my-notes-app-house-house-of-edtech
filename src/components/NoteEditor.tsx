@@ -2,7 +2,6 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { useState, useEffect } from "react";
-import React from "react";
 
 type Props = {
   initialTitle?: string;
