@@ -11,9 +11,13 @@ type Note = { _id: string; title: string; content: string; tags?: string[] };
 type SimpleHeaders = { get(name: string): string | null };
 
 /** Normalize headers() result (handles both sync and Promise cases) */
+function hasGetHeader(x: unknown): x is SimpleHeaders {
+  return typeof x === "object" && x !== null && "get" in x && typeof (x as { get?: unknown }).get === "function";
+}
+
 async function getHeaders(): Promise<SimpleHeaders> {
   const maybe = headers() as unknown;
-  if (maybe && typeof (maybe as any).get === "function") {
+  if (hasGetHeader(maybe)) {
     return maybe as SimpleHeaders;
   }
   // maybe is a Promise<SimpleHeaders>
