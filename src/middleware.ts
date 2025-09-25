@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next({
         headers: requestHeaders,
       });
-    } catch (error) {
+    } catch {
       // Token verification failed
       const url = new URL('/login', request.url);
       url.searchParams.set('next', request.nextUrl.pathname);
