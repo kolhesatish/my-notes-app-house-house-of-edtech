@@ -32,7 +32,7 @@ export default function RootLayout({
      >
         <Navbar />
         <div className="max-w-5xl mx-auto px-4 py-6">{children}</div>
-        <div>
+        <div className="mt-52">
         <Footer />
         </div>
       </body>
