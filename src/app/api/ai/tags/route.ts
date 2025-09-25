@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
 
 export async function POST(req: Request) {
-  const token = cookies().get("token")?.value;
+  const token = (await cookies()).get("token")?.value;
   const payload = token ? verifyToken(token) : null;
   if (!payload?.sub) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { content } = await req.json();
