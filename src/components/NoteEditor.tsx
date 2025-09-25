@@ -1,7 +1,7 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 
 type Props = {
@@ -128,9 +128,9 @@ export default function NoteEditor({ initialTitle = "", initialContent = "", ini
   const [tagInputValue, setTagInputValue] = useState<string>(initialTags.join(", "));
 
   // Update tag input when tags change from external sources (like AI generation)
-  useState(() => {
+  useEffect(() => {
     setTagInputValue(tags.join(", "));
-  });
+  }, [tags]);
 
   function handleTagInputChange(value: string): void {
     setTagInputValue(value);
