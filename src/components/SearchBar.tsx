@@ -17,27 +17,64 @@ export default function SearchBar() {
   }, [params]);
 
   function submit() {
-    const sp = new URLSearchParams(params.toString());
-    if (q) sp.set("q", q); else sp.delete("q");
-    if (tag) sp.set("tag", tag); else sp.delete("tag");
-    router.push(`${pathname}?${sp.toString()}`);
+    const sp = new URLSearchParams();
+    if (q.trim()) sp.set("q", q.trim());
+    if (tag.trim()) sp.set("tag", tag.trim());
+    
+    const queryString = sp.toString();
+    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+    router.push(newUrl);
   }
+
+  function handleKeyPress(e: React.KeyboardEvent) {
+    if (e.key === "Enter") {
+      submit();
+    }
+  }
+
+  function clearSearch() {
+    setQ("");
+    setTag("");
+    router.push(pathname);
+  }
+
+  const hasActiveSearch = q || tag;
 
   return (
     <div className="flex flex-wrap gap-2 items-center">
       <input
         value={q}
         onChange={(e) => setQ(e.target.value)}
+        onKeyPress={handleKeyPress}
         placeholder="Search title or content"
-        className="border rounded-md px-3 py-2 text-sm min-w-60"
+        className="input min-w-60"
       />
       <input
         value={tag}
         onChange={(e) => setTag(e.target.value)}
+        onKeyPress={handleKeyPress}
         placeholder="Filter by tag"
-        className="border rounded-md px-3 py-2 text-sm"
+        className="input"
       />
-      <button onClick={submit} className="border rounded-md px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10">Apply</button>
+      <button 
+        onClick={submit} 
+        className="button"
+      >
+        🔍 Search
+      </button>
+      {hasActiveSearch && (
+        <button 
+          onClick={clearSearch} 
+          className="button text-red-600 hover:bg-red-50"
+        >
+          ✕ Clear
+        </button>
+      )}
+      {hasActiveSearch && (
+        <span className="text-xs text-muted">
+          Filtering {q && `"${q}"`} {q && tag && " + "} {tag && `#${tag}`}
+        </span>
+      )}
     </div>
   );
 }
