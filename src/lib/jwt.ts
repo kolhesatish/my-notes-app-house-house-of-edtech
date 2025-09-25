@@ -1,6 +1,6 @@
-import jwt from "jsonwebtoken";
+import jwt, { type Secret } from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+const JWT_SECRET = process.env.JWT_SECRET as Secret;
 
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET is not set");
@@ -8,8 +8,8 @@ if (!JWT_SECRET) {
 
 export type JwtPayload = { sub: string; email?: string };
 
-export function signToken(payload: JwtPayload, expiresIn: string | number = "7d") {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn });
+export function signToken(payload: JwtPayload, expiresInSeconds: number = 60 * 60 * 24 * 7) {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: expiresInSeconds });
 }
 
 export function verifyToken(token: string): JwtPayload | null {
