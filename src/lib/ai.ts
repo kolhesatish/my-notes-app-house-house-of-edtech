@@ -74,7 +74,7 @@ export async function suggestTags(text: string, maxTags = 5): Promise<string[]> 
     return raw
       .replace(/\[|\]|`|\n|\r|"/g, " ")
       .split(/[,;]+/)
-      .map((s : any) => s.trim().toLowerCase())
+      .map((s : string) => s.trim().toLowerCase())
       .filter(Boolean)
       .slice(0, maxTags);
 
