@@ -160,14 +160,14 @@ export default function NoteEditor({ initialTitle = "", initialContent = "", ini
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Title"
-        className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
       />
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Write your note..."
         rows={12}
-        className="border border-gray-300 rounded-md p-3 text-sm resize-y focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+className="border border-gray-300 rounded-md p-3 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
       />
       <input
         value={tagInputValue}
@@ -175,7 +175,7 @@ export default function NoteEditor({ initialTitle = "", initialContent = "", ini
         onBlur={processTagInput}
         onKeyDown={handleTagKeyDown}
         placeholder="tags, comma, separated"
-        className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
       />
       <div className="flex flex-wrap gap-2 items-center">
         <button 
