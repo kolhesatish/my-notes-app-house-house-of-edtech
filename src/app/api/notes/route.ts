@@ -5,20 +5,10 @@ import { Note } from "@/models/Note";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
 
-/** Normalize cookies() for different Next versions */
-function hasGet(x: unknown): x is { get: (name: string) => { value?: string } | undefined } {
-  return typeof x === "object" && x !== null && "get" in x && typeof (x as { get?: unknown }).get === "function";
-}
-
-async function getCookieStore() {
-  const maybe = cookies() as unknown;
-  if (hasGet(maybe)) return maybe as ReturnType<typeof cookies>;
-  return await (maybe as Promise<ReturnType<typeof cookies>>);
-}
 
 async function getUserIdFromRequest(req: Request) {
   try {
-    const store = await getCookieStore();
+    const store = await cookies();
     const tokenFromCookie = store?.get("token")?.value ?? null;
     const authHeader = req.headers.get("authorization") ?? req.headers.get("Authorization") ?? null;
 
