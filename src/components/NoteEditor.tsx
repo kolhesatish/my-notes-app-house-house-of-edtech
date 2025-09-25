@@ -56,29 +56,27 @@ export default function NoteEditor({ initialTitle = "", initialContent = "", ini
       });
       const data: unknown = await res.json();
 
+      const hasTagsArray = (x: unknown): x is { tags: string[] } => typeof x === 'object' && x !== null && Array.isArray((x as any).tags);
+      const hasTagsString = (x: unknown): x is { tags: string } => typeof x === 'object' && x !== null && typeof (x as any).tags === 'string';
+
       let newTags: string[] = [];
-      
-      // Handle different response formats
-      if (Array.isArray(data.tags)) {
-        newTags = data.tags as string[];
+
+      if (hasTagsArray(data)) {
+        newTags = data.tags;
       } else if (Array.isArray(data)) {
-        newTags = data as string[];
-      } else if (typeof data.tags === 'string') {
-        // Handle JSON string response
+        newTags = (data as unknown[]).map((t) => String(t));
+      } else if (hasTagsString(data)) {
         try {
           const parsedTags: unknown = JSON.parse(data.tags);
-          newTags = Array.isArray(parsedTags) ? parsedTags as string[] : [];
+          newTags = Array.isArray(parsedTags) ? (parsedTags as unknown[]).map((t) => String(t)) : [];
         } catch {
-          // If parsing fails, try to extract from string
           newTags = data.tags.split(',').map((tag: string) => tag.trim().replace(/['"]/g, ''));
         }
       } else if (typeof data === 'string') {
-        // Handle direct JSON string response
         try {
           const parsedTags: unknown = JSON.parse(data);
-          newTags = Array.isArray(parsedTags) ? parsedTags as string[] : [];
+          newTags = Array.isArray(parsedTags) ? (parsedTags as unknown[]).map((t) => String(t)) : [];
         } catch {
-          // If parsing fails, try to extract from string
           newTags = data.split(',').map((tag: string) => tag.trim().replace(/['"]/g, ''));
         }
       }
