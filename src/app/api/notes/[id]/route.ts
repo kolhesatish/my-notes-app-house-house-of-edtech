@@ -5,8 +5,8 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
 import mongoose from "mongoose";
 
-function getUserIdFromCookie(): string | null {
-  const cookieStore = cookies();
+async function getUserIdFromCookie(): Promise<string | null> {
+  const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   const payload = token ? verifyToken(token) : null;
   return payload?.sub || null;
@@ -14,7 +14,7 @@ function getUserIdFromCookie(): string | null {
 
 export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const userId = getUserIdFromCookie();
+    const userId = await getUserIdFromCookie();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
 
 export async function PUT(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const userId = getUserIdFromCookie();
+    const userId = await getUserIdFromCookie();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -71,7 +71,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
 
 export async function DELETE(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const userId = getUserIdFromCookie();
+    const userId = await getUserIdFromCookie();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
