@@ -41,37 +41,39 @@ export default function SearchBar() {
   const hasActiveSearch = q || tag;
 
   return (
-    <div className="flex flex-wrap gap-2 items-center">
+    <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center w-full">
       <input
         value={q}
         onChange={(e) => setQ(e.target.value)}
         onKeyPress={handleKeyPress}
         placeholder="Search title or content"
-        className="input min-w-60"
+        className="input w-full sm:w-auto sm:min-w-60 px-3 py-2 rounded-lg border"
       />
       <input
         value={tag}
         onChange={(e) => setTag(e.target.value)}
         onKeyPress={handleKeyPress}
         placeholder="Filter by tag"
-        className="input"
+        className="input w-full sm:w-auto px-3 py-2 rounded-lg border"
       />
-      <button 
-        onClick={submit} 
-        className="button"
-      >
-        🔍 Search
-      </button>
-      {hasActiveSearch && (
+      <div className="flex gap-2">
         <button 
-          onClick={clearSearch} 
-          className="button text-red-600 hover:bg-red-50"
+          onClick={submit} 
+          className="button w-full sm:w-auto px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
         >
-          ✕ Clear
+          🔍 Search
         </button>
-      )}
+        {hasActiveSearch && (
+          <button 
+            onClick={clearSearch} 
+            className="button w-full sm:w-auto px-4 py-2 rounded-lg text-red-600 border border-red-300 hover:bg-red-50"
+          >
+            ✕ Clear
+          </button>
+        )}
+      </div>
       {hasActiveSearch && (
-        <span className="text-xs text-muted">
+        <span className="text-xs text-muted sm:ml-2 mt-1 sm:mt-0">
           Filtering {q && `"${q}"`} {q && tag && " + "} {tag && `#${tag}`}
         </span>
       )}
