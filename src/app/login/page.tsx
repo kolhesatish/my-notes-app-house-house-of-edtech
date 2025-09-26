@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { set } from "mongoose";
 
 export default function LoginPage() {
   return (
@@ -16,8 +17,12 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if(loading) return;
+    setLoading(true);
+    setError("");
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
@@ -35,6 +40,7 @@ function LoginContent() {
 
       if (!res.ok) {
         throw new Error("Login failed");
+        setLoading(false);
       }
 
       const nextUrl = searchParams.get("next") || "/dashboard";
@@ -42,6 +48,8 @@ function LoginContent() {
       router.refresh();
     } catch {
       setError("Invalid credentials");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,9 +74,15 @@ function LoginContent() {
         />
         <button
           type="submit"
-          className="border rounded-md px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10"
+          disabled={loading}
+          className={`
+            w-full px-4 py-2 rounded-md text-sm font-medium transition-colors
+            ${loading
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"}
+          `}
         >
-          Log In
+          {loading ? "Logging in..." : "Log In"}
         </button>
       </form>
       <p className="text-sm mt-3">
