@@ -1,4 +1,3 @@
-// src/lib/ai.ts
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY as string;
 
 if (!GEMINI_API_KEY) {
@@ -60,17 +59,14 @@ export async function suggestTags(text: string, maxTags = 5): Promise<string[]> 
     const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
     
     try {
-      // Try to parse as JSON first
       const json = JSON.parse(raw.trim());
       if (Array.isArray(json)) {
         return json.map((t) => String(t)).slice(0, maxTags);
       }
     } catch {
-      // Fallback: extract tags from response text
       console.log("Failed to parse JSON, using fallback parsing");
     }
     
-    // Fallback parsing
     return raw
       .replace(/\[|\]|`|\n|\r|"/g, " ")
       .split(/[,;]+/)
